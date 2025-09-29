@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOCKBENCH - Evaluating LLMs in Realistic Stock Trading</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.4em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .hero-buttons {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Main Content */
+        .main-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            margin-top: -20px;
+            position: relative;
+            z-index: 3;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section {
+            padding: 60px 40px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .section-subtitle {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Abstract Section */
+        .abstract {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #444;
+            text-align: justify;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .abstract p {
+            margin-bottom: 20px;
+        }
+        
+        /* Images */
+        .main-image {
+            width: 100%;
+            max-width: 900px;
+            margin: 40px auto;
+            display: block;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .main-image:hover {
+            transform: scale(1.02);
+        }
+        
+        /* Stock Cards */
+        .stock-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .stock-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stock-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+        
+        .stock-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        }
+        
+        .stock-card h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .stock-card p {
+            color: #555;
+            font-size: 1em;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Experiment Setup */
+        .experiment-setup {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .experiment-setup p {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .experiment-setup strong {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        /* Leaderboard */
+        .leaderboard {
+            overflow-x: auto;
+            margin-top: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+        
+        th, td {
+            padding: 20px 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        tr:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+        
+        .rank-1 { 
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 193, 7, 0.1));
+            border-left: 4px solid #ffc107;
+        }
+        .rank-2 { 
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(158, 158, 158, 0.1));
+            border-left: 4px solid #9e9e9e;
+        }
+        .rank-3 { 
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(184, 115, 51, 0.1));
+            border-left: 4px solid #b87333;
+        }
+        
+        .metric {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .positive { 
+            color: #2e7d32;
+            background: rgba(46, 125, 50, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        .negative { 
+            color: #c62828;
+            background: rgba(198, 40, 40, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        
+        .caption {
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+            font-size: 0.95em;
+            font-style: italic;
+        }
+        
+        .note {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.6;
+            background: rgba(102, 126, 234, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: #667eea;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.1em;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .section {
+                padding: 40px 20px;
+            }
+            
+            .section h2 {
+                font-size: 2em;
+            }
+            
+            .stock-selection {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 200px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            z-index: 1001;
+        }
+        
+        .scroll-progress {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-progress" id="scrollProgress"></div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">STOCKBENCH</a>
+            <ul class="nav-links">
+                <li><a href="#abstract">Abstract</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#targets">Targets</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>STOCKBENCH</h1>
+            <p class="subtitle">Evaluating LLM Agents in Realistic Stock Trading Environments</p>
+            <div class="hero-buttons">
+                <a href="#abstract" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i>
+                    Explore Benchmark
+                </a>
+                <a href="#leaderboard" class="btn btn-secondary">
+                    <i class="fas fa-trophy"></i>
+                    View Results
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="main-content">
+        <!-- Abstract Section -->
+        <section class="section" id="abstract">
+            <div class="section-header">
+                <h2>Abstract</h2>
+            </div>
+            <div class="abstract">
+                <p>Large language models (LLMs) have recently demonstrated strong capabilities as autonomous agents, showing promise in reasoning, tool use, and sequential decision-making. While prior benchmarks have evaluated LLM agents in domains such as software engineering and scientific discovery, the finance domain remains underexplored, despite its direct relevance to economic value and high-stakes decision-making. Existing financial benchmarks primarily test static knowledge through question answering, but they fall short of capturing the dynamic and iterative nature of trading. To address this gap, we introduce StockBench, a contamination-free benchmark designed to evaluate LLM agents in realistic, multi-month stock trading environments. Agents receive daily market signals---including prices, fundamentals, and news---and must make sequential buy, sell, or hold decisions. Performance is assessed using financial metrics such as cumulative return, maximum drawdown, and the Sortino ratio. Our evaluation of state-of-the-art proprietary (e.g., GPT-5, Claude-4) and open-weight (e.g., Qwen3, Kimi-K2, GLM-4.5) models shows that while most LLM agents struggle to outperform the simple buy-and-hold baseline, several models demonstrate the potential to deliver higher returns and manage risk more effectively. These findings highlight both the challenges and opportunities in developing LLM-powered financial agents, showing that excelling at static financial knowledge tasks does not necessarily translate into successful trading strategies. We release StockBench as an open-source resource to support reproducibility and advance future research in this domain.</p>
+            </div>
+        </section>
+
+        <!-- Main Figure Section -->
+        <section class="section" id="overview">
+            <div class="section-header">
+                <h2>System Overview</h2>
+                <p class="section-subtitle">Comprehensive framework architecture and workflow</p>
+            </div>
+            <img src="main.png" alt="STOCKBENCH System Architecture" class="main-image">
+            <p class="caption">Figure 1: Overview of STOCKBENCH framework, including back-trading environment and stock trading agent workflow</p>
+        </section>
+
+        <!-- Stock Selection Section -->
+        <section class="section" id="targets">
+            <div class="section-header">
+                <h2>Investment Targets</h2>
+                <p class="section-subtitle">Diverse portfolio representing major market sectors</p>
+            </div>
+            <p>We select the top 20 stocks from the Dow Jones Industrial Average (DJIA) by weight as our investment targets, ensuring diverse representation across major sectors while avoiding short-term irrational market sentiment.</p>
+            <div class="stock-selection">
+                <div class="stock-card">
+                    <h4><i class="fas fa-microchip"></i> Technology</h4>
+                    <p>Apple (AAPL), Amazon (AMZN), IBM (IBM), Salesforce (CRM), Microsoft (MSFT) - representing the digital economy and cloud computing</p>
+                </div>
+                <div class="stock-card">
+                    <h4><i class="fas fa-university"></i> Finance</h4>
+                    <p>Travelers (TRV), JPMorgan Chase (JPM), American Express (AXP), Visa (V), Goldman Sachs (GS) - capturing financial market dynamics</p>
+                </div>
+                <div class="stock-card">
+                    <h4><i class="fas fa-shopping-cart"></i> Consumer Goods & Retail</h4>
+                    <p>Johnson & Johnson (JNJ), Procter & Gamble (PG), McDonald's (MCD), Home Depot (HD) - representing consumer demand and retail</p>
+                </div>
+                <div class="stock-card">
+                    <h4><i class="fas fa-industry"></i> Industry & Manufacturing</h4>
+                    <p>Boeing (BA), Honeywell (HON), Caterpillar (CAT) - reflecting industrial activity and manufacturing</p>
+                </div>
+                <div class="stock-card">
+                    <h4><i class="fas fa-heartbeat"></i> Medical Care & Health</h4>
+                    <p>Amgen (AMGN), UnitedHealth Group (UNH) - representing healthcare and pharmaceutical sectors</p>
+                </div>
+                <div class="stock-card">
+                    <h4><i class="fas fa-flask"></i> Chemical Engineering & Materials</h4>
+                    <p>Sherwin-Williams (SHW) - covering materials science and chemical engineering</p>
+                </div>
+            </div>
+            <img src="dataset.png" alt="Industry Distribution" class="main-image">
+            <p class="caption">Figure 2: Industry distribution of selected investment targets</p>
+        </section>
+
+        <!-- Experiment Setup Section -->
+        <section class="section">
+            <div class="section-header">
+                <h2>Experiment Setup</h2>
+                <p class="section-subtitle">Rigorous evaluation methodology and parameters</p>
+            </div>
+            <div class="experiment-setup">
+                <p><strong><i class="fas fa-calendar-alt"></i> Evaluation Period:</strong> March 3 - June 30, 2025 (82 trading days)</p>
+                <p><strong><i class="fas fa-dollar-sign"></i> Initial Capital:</strong> $100,000 cash, zero initial holdings</p>
+            </div>
+        </section>
+
+        <!-- Leaderboard Section -->
+        <section class="section" id="leaderboard">
+            <div class="section-header">
+                <h2>Leaderboard</h2>
+                <p class="section-subtitle">Performance comparison of state-of-the-art models</p>
+            </div>
+            <div class="leaderboard">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-medal"></i> Rank</th>
+                            <th><i class="fas fa-robot"></i> Model</th>
+                            <th><i class="fas fa-chart-line"></i> Final Return (%)</th>
+                            <th><i class="fas fa-chart-area"></i> Max Drawdown (%)</th>
+                            <th><i class="fas fa-balance-scale"></i> Sortino Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="rank-1">
+                            <td><strong>🥇 1</strong></td>
+                            <td><strong>Kimi-K2</strong></td>
+                            <td class="metric positive">+1.9</td>
+                            <td class="metric negative">-11.8</td>
+                            <td class="metric"><strong>0.0420</strong></td>
+                        </tr>
+                        <tr class="rank-2">
+                            <td><strong>🥈 2</strong></td>
+                            <td><strong>Qwen3-235B-Ins</strong></td>
+                            <td class="metric positive">+2.4</td>
+                            <td class="metric negative"><strong>-11.2</strong></td>
+                            <td class="metric">0.0299</td>
+                        </tr>
+                        <tr class="rank-3">
+                            <td><strong>🥉 3</strong></td>
+                            <td><strong>GLM-4.5</strong></td>
+                            <td class="metric positive">+2.3</td>
+                            <td class="metric negative">-13.7</td>
+                            <td class="metric">0.0295</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Qwen3-235B-Think</td>
+                            <td class="metric positive"><strong>+2.5</strong></td>
+                            <td class="metric negative">-14.9</td>
+                            <td class="metric">0.0309</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>OpenAI-O3</td>
+                            <td class="metric positive">+1.9</td>
+                            <td class="metric negative">-13.2</td>
+                            <td class="metric">0.0267</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Qwen3-30B-Think</td>
+                            <td class="metric positive">+2.1</td>
+                            <td class="metric negative">-13.5</td>
+                            <td class="metric">0.0255</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Claude-4-Sonnet</td>
+                            <td class="metric positive">+2.2</td>
+                            <td class="metric negative">-14.2</td>
+                            <td class="metric">0.0245</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>DeepSeek-V3.1</td>
+                            <td class="metric positive">+1.1</td>
+                            <td class="metric negative">-14.1</td>
+                            <td class="metric">0.0210</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>GPT-5</td>
+                            <td class="metric positive">+0.3</td>
+                            <td class="metric negative">-13.1</td>
+                            <td class="metric">0.0132</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>Qwen3-Coder</td>
+                            <td class="metric positive">+0.2</td>
+                            <td class="metric negative">-13.9</td>
+                            <td class="metric">0.0137</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>DeepSeek-V3</td>
+                            <td class="metric positive">+0.2</td>
+                            <td class="metric negative">-14.1</td>
+                            <td class="metric">0.0144</td>
+                        </tr>
+                        <tr style="background-color: #f5f5f5;">
+                            <td>12</td>
+                            <td><em>Passive Baseline</em></td>
+                            <td class="metric positive"><em>+0.4</em></td>
+                            <td class="metric negative"><em>-15.2</em></td>
+                            <td class="metric"><em>0.0155</em></td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td>GPT-OSS-120B</td>
+                            <td class="metric negative">-0.9</td>
+                            <td class="metric negative">-14.0</td>
+                            <td class="metric">0.0156</td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td>GPT-OSS-20B</td>
+                            <td class="metric negative">-2.8</td>
+                            <td class="metric negative">-14.4</td>
+                            <td class="metric negative">-0.0069</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="note">
+                <strong>Note:</strong> The best performance in each metric is highlighted in bold. Models are ranked based on the z-score aggregation of all three metrics.<br>
+                RT stands for Final Return (%), DDN stands for Max Drawdown (%). Results averaged over 3 runs with different random seeds during March-June 2025 evaluation period
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 STOCKBENCH. All rights reserved.</p>
+            <p>Evaluating LLM Agents in Realistic Stock Trading Environments</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll progress indicator
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.body.offsetHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('scrollProgress').style.width = scrollPercent + '%';
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('.section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
