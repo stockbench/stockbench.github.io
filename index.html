@@ -545,6 +545,193 @@
             width: 0%;
             transition: width 0.1s ease;
         }
+
+        /* Targets Layout */
+        .targets-layout {
+            position: relative;
+            margin-top: 50px;
+            min-height: 600px;
+        }
+        
+        .chart-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+        }
+        
+        .dataset-image {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+        
+        .dataset-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+        }
+        
+        .chart-container .caption {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .sector-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .sector-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .sector-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sector-card.technology::before {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+        }
+        
+        .sector-card.finance::before {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .sector-card.consumer::before {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+        }
+        
+        .sector-card.industry::before {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+        }
+        
+        .sector-card.medical::before {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+        }
+        
+        .sector-card.materials::before {
+            background: linear-gradient(45deg, #a8edea, #d299c2);
+        }
+        
+        .sector-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            color: white;
+        }
+        
+        .sector-card.technology .sector-icon {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+        }
+        
+        .sector-card.finance .sector-icon {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+        }
+        
+        .sector-card.consumer .sector-icon {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+        }
+        
+        .sector-card.industry .sector-icon {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+        }
+        
+        .sector-card.medical .sector-icon {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+        }
+        
+        .sector-card.materials .sector-icon {
+            background: linear-gradient(45deg, #a8edea, #d299c2);
+        }
+        
+        .sector-content h4 {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .sector-content p {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .sector-desc {
+            font-size: 0.8em;
+            color: #888;
+            font-style: italic;
+            display: block;
+        }
+        
+        /* Responsive Design for Targets */
+        @media (max-width: 1024px) {
+            .sectors-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .dataset-image {
+                width: 250px;
+                height: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .targets-layout {
+                min-height: auto;
+            }
+            
+            .chart-container {
+                position: static;
+                transform: none;
+                margin-bottom: 40px;
+            }
+            
+            .sectors-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .dataset-image {
+                width: 200px;
+                height: 200px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -611,39 +798,80 @@
                 <h2>Investment Targets</h2>
                 <p class="section-subtitle">Diverse portfolio representing major market sectors</p>
             </div>
-            <div class="targets-content">
-                <div class="targets-description">
-                    <p class="intro-text">We select the top 20 stocks from the Dow Jones Industrial Average (DJIA) by weight as our investment targets, ensuring diverse representation across major sectors while avoiding short-term irrational market sentiment.</p>
-                    <div class="stock-selection">
-                        <div class="stock-card">
-                            <h4><i class="fas fa-microchip"></i> Technology</h4>
-                            <p>Apple (AAPL), Amazon (AMZN), IBM (IBM), Salesforce (CRM), Microsoft (MSFT) - representing the digital economy and cloud computing</p>
-                        </div>
-                        <div class="stock-card">
-                            <h4><i class="fas fa-university"></i> Finance</h4>
-                            <p>Travelers (TRV), JPMorgan Chase (JPM), American Express (AXP), Visa (V), Goldman Sachs (GS) - capturing financial market dynamics</p>
-                        </div>
-                        <div class="stock-card">
-                            <h4><i class="fas fa-shopping-cart"></i> Consumer Goods & Retail</h4>
-                            <p>Johnson & Johnson (JNJ), Procter & Gamble (PG), McDonald's (MCD), Home Depot (HD) - representing consumer demand and retail</p>
-                        </div>
-                        <div class="stock-card">
-                            <h4><i class="fas fa-industry"></i> Industry & Manufacturing</h4>
-                            <p>Boeing (BA), Honeywell (HON), Caterpillar (CAT) - reflecting industrial activity and manufacturing</p>
-                        </div>
-                        <div class="stock-card">
-                            <h4><i class="fas fa-heartbeat"></i> Medical Care & Health</h4>
-                            <p>Amgen (AMGN), UnitedHealth Group (UNH) - representing healthcare and pharmaceutical sectors</p>
-                        </div>
-                        <div class="stock-card">
-                            <h4><i class="fas fa-flask"></i> Chemical Engineering & Materials</h4>
-                            <p>Sherwin-Williams (SHW) - covering materials science and chemical engineering</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="targets-visualization">
+            <p class="intro-text">We select the top 20 stocks from the Dow Jones Industrial Average (DJIA) by weight as our investment targets, ensuring diverse representation across major sectors while avoiding short-term irrational market sentiment.</p>
+            
+            <div class="targets-layout">
+                <div class="chart-container">
                     <img src="dataset.png" alt="Industry Distribution" class="dataset-image">
                     <p class="caption">Figure 2: Industry distribution of selected investment targets</p>
+                </div>
+                
+                <div class="sectors-grid">
+                    <div class="sector-card technology">
+                        <div class="sector-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Technology</h4>
+                            <p>Apple (AAPL), Amazon (AMZN), IBM (IBM), Salesforce (CRM), Microsoft (MSFT)</p>
+                            <span class="sector-desc">Digital economy and cloud computing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sector-card finance">
+                        <div class="sector-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Finance</h4>
+                            <p>Travelers (TRV), JPMorgan Chase (JPM), American Express (AXP), Visa (V), Goldman Sachs (GS)</p>
+                            <span class="sector-desc">Financial market dynamics</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sector-card consumer">
+                        <div class="sector-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Consumer Goods & Retail</h4>
+                            <p>Johnson & Johnson (JNJ), Procter & Gamble (PG), McDonald's (MCD), Home Depot (HD)</p>
+                            <span class="sector-desc">Consumer demand and retail</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sector-card industry">
+                        <div class="sector-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Industry & Manufacturing</h4>
+                            <p>Boeing (BA), Honeywell (HON), Caterpillar (CAT)</p>
+                            <span class="sector-desc">Industrial activity and manufacturing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sector-card medical">
+                        <div class="sector-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Medical Care & Health</h4>
+                            <p>Amgen (AMGN), UnitedHealth Group (UNH)</p>
+                            <span class="sector-desc">Healthcare and pharmaceutical sectors</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sector-card materials">
+                        <div class="sector-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="sector-content">
+                            <h4>Chemical Engineering & Materials</h4>
+                            <p>Sherwin-Williams (SHW)</p>
+                            <span class="sector-desc">Materials science and chemical engineering</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
